@@ -19,4 +19,4 @@ jobs:
     - name: 🐳 Build Docker Images
       run: |
         echo "Bắt đầu kiểm tra và đóng gói các dịch vụ..."
-        docker-compose build
+        docker compose build
