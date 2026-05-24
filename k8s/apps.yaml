@@ -1,0 +1,65 @@
+# 1. DEPLOYMENT CHO ORDER-API
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-api
+  template:
+    metadata:
+      labels:
+        app: order-api
+    spec:
+      containers:
+      - name: order-api
+        image: my-order-api:latest
+        imagePullPolicy: Never # QUAN TRỌNG: Ép K8s không lên mạng tải, mà xài hàng nội bộ vừa build
+        workingDir: /app # ---> THÊM DÒNG NÀY ĐỂ CHỈ ĐƯỜNG (Thay bằng /var/www hoặc /app nếu Dockerfile của bạn cấu hình khác) <---
+        command: ["php", "artisan", "serve"] # ---> THÊM 2 DÒNG NÀY ĐỂ BẬT WEB SERVER <---
+        args: ["--host=0.0.0.0", "--port=8000"]
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DB_HOST
+          value: "host.docker.internal" # Cầu nối tàng hình về MySQL của máy chủ
+        - name: KAFKA_BROKERS
+          value: "host.docker.internal:9092" # Cầu nối tàng hình về Kafka
+        - name: REDIS_HOST
+          value: "redis" # Gọi sang thằng Redis đang chạy cùng trong K8s
+        - name: REDIS_PORT
+          value: "6379"
+
+---
+# 2. DEPLOYMENT CHO PRODUCT-WORKER
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product-worker
+  template:
+    metadata:
+      labels:
+        app: product-worker
+    spec:
+      containers:
+      - name: product-worker
+        image: my-product-worker:latest
+        imagePullPolicy: Never
+        workingDir: /app
+        command: ["php", "artisan", "kafka:listen-orders"]
+        env:
+        - name: DB_HOST
+          value: "host.docker.internal"
+        - name: KAFKA_BROKERS
+          value: "host.docker.internal:9092"
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"

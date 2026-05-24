@@ -11,3 +11,5 @@ RUN pecl install redis rdkafka && docker-php-ext-enable redis rdkafka
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
+
+COPY . .

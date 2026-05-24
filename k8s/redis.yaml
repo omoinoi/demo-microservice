@@ -1,0 +1,34 @@
+# 1. DEPLOYMENT: Ra lệnh cho K8s chạy 1 bản sao của Redis
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:alpine
+        ports:
+        - containerPort: 6379
+
+---
+# 2. SERVICE: Mở cổng mạng để các app khác gọi được Redis
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  selector:
+    app: redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
