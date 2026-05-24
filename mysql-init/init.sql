@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS coffee_products_db;
+CREATE DATABASE IF NOT EXISTS coffee_orders_db;

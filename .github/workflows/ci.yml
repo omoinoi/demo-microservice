@@ -1,0 +1,22 @@
+name: Microservices CI Pipeline
+
+# Robot sẽ tự động chạy khi có ai đó push code lên nhánh main hoặc master
+on:
+  push:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    # Mượn một con server Ubuntu mới tinh của GitHub
+    runs-on: ubuntu-latest
+
+    steps:
+    # Hành động 1: Tải code từ kho lưu trữ về server Ubuntu
+    - name: 📥 Tải code về máy chủ
+      uses: actions/checkout@v3
+
+    # Hành động 2: Chạy lệnh build toàn bộ Docker image để kiểm tra lỗi
+    - name: 🐳 Build Docker Images
+      run: |
+        echo "Bắt đầu kiểm tra và đóng gói các dịch vụ..."
+        docker-compose build
